@@ -2,6 +2,7 @@ import asyncio
 from pydantic import BaseModel
 from typing import Union, Optional
 from uuid import UUID
+from langfuse import observe
 
 from cognee.modules.ontology.ontology_env_config import get_ontology_env_config
 from cognee.shared.logging_utils import get_logger
@@ -38,6 +39,7 @@ logger = get_logger("cognify")
 update_status_lock = asyncio.Lock()
 
 
+@observe(name="cognee_cognify")
 async def cognify(
     datasets: Union[str, list[str], list[UUID]] = None,
     user: User = None,

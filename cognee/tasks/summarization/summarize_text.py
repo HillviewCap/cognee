@@ -2,6 +2,7 @@ import asyncio
 from typing import Type
 from uuid import uuid5
 from pydantic import BaseModel
+from langfuse import observe
 
 from cognee.tasks.summarization.exceptions import InvalidSummaryInputsError
 from cognee.modules.chunking.models.DocumentChunk import DocumentChunk
@@ -10,6 +11,7 @@ from cognee.modules.cognify.config import get_cognify_config
 from cognee.tasks.summarization.models import TextSummary
 
 
+@observe(name="cognee_summarize_text")
 async def summarize_text(
     data_chunks: list[DocumentChunk], summarization_model: Type[BaseModel] = None
 ):
@@ -36,6 +38,18 @@ async def summarize_text(
         A list of TextSummary objects, each containing the summary of a corresponding
         DocumentChunk.
     """
+    # Handle Langfuse-wrapped async generators or other async iterables
+    # The pipeline may pass wrapped iterables instead of a list
+    if not isinstance(data_chunks, list):
+        if hasattr(data_chunks, '__anext__') or hasattr(data_chunks, '__aiter__'):
+            # Materialize async generator/iterable into a list
+            materialized_chunks = []
+            async for chunk in data_chunks:
+                materialized_chunks.append(chunk)
+            data_chunks = materialized_chunks
+        elif hasattr(data_chunks, '__iter__') and not isinstance(data_chunks, (str, bytes)):
+            # Handle regular iterables (but not strings)
+            data_chunks = list(data_chunks)
 
     if not isinstance(data_chunks, list):
         raise InvalidSummaryInputsError("data_chunks must be a list.")

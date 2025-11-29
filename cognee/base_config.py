@@ -5,16 +5,17 @@ from functools import lru_cache
 from cognee.root_dir import get_absolute_path, ensure_absolute_path
 from cognee.modules.observability.observers import Observer
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 import pydantic
 
 
 class BaseConfig(BaseSettings):
-    data_root_directory: str = get_absolute_path(".data_storage")
-    system_root_directory: str = get_absolute_path(".cognee_system")
-    cache_root_directory: str = get_absolute_path(".cognee_cache")
-    logs_root_directory: str = os.getenv(
+    data_root_directory: str = Field(default_factory=lambda: os.getenv("DATA_ROOT_DIRECTORY") or get_absolute_path(".data_storage"))
+    system_root_directory: str = Field(default_factory=lambda: os.getenv("SYSTEM_ROOT_DIRECTORY") or get_absolute_path(".cognee_system"))
+    cache_root_directory: str = Field(default_factory=lambda: os.getenv("CACHE_ROOT_DIRECTORY") or get_absolute_path(".cognee_cache"))
+    logs_root_directory: str = Field(default_factory=lambda: os.getenv(
         "COGNEE_LOGS_DIR", str(os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs"))
-    )
+    ))
     monitoring_tool: object = Observer.NONE
 
     @pydantic.model_validator(mode="after")

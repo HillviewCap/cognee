@@ -1,6 +1,7 @@
 import asyncio
 from uuid import UUID
 from typing import Union
+from langfuse import observe
 
 from cognee.modules.pipelines.layers.setup_and_check_environment import (
     setup_and_check_environment,
@@ -27,6 +28,7 @@ logger = get_logger("cognee.pipeline")
 update_status_lock = asyncio.Lock()
 
 
+@observe(name="cognee_run_pipeline")
 async def run_pipeline(
     tasks: list[Task],
     data=None,
@@ -57,6 +59,7 @@ async def run_pipeline(
             yield run_info
 
 
+@observe(name="cognee_run_pipeline_per_dataset")
 async def run_pipeline_per_dataset(
     dataset: Dataset,
     user: User,

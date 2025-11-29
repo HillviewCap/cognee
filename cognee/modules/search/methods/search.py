@@ -4,6 +4,7 @@ import asyncio
 from uuid import UUID
 from fastapi.encoders import jsonable_encoder
 from typing import Any, List, Optional, Tuple, Type, Union
+from langfuse import observe
 
 from cognee.infrastructure.databases.graph import get_graph_engine
 from cognee.shared.logging_utils import get_logger
@@ -32,6 +33,7 @@ from ..utils.prepare_search_result import prepare_search_result
 logger = get_logger()
 
 
+@observe(name="cognee_search_internal")
 async def search(
     query_text: str,
     query_type: SearchType,
@@ -202,6 +204,7 @@ async def search(
                 return return_value
 
 
+@observe(name="cognee_authorized_search")
 async def authorized_search(
     query_type: SearchType,
     query_text: str,
@@ -309,6 +312,7 @@ async def authorized_search(
     return search_results
 
 
+@observe(name="cognee_search_in_datasets_context")
 async def search_in_datasets_context(
     search_datasets: list[Dataset],
     query_type: SearchType,

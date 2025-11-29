@@ -1,5 +1,6 @@
 from cognee.modules.data.models import Data
 import json
+from langfuse import observe
 from cognee.modules.data.processing.document_types import (
     Document,
     PdfDocument,
@@ -89,6 +90,7 @@ def update_node_set(document):
     ]
 
 
+@observe(name="cognee_classify_documents")
 async def classify_documents(data_documents: list[Data]) -> list[Document]:
     """
     Classifies a list of data items into specific document types based on their file

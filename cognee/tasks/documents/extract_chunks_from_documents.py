@@ -1,6 +1,7 @@
 from uuid import UUID
 from sqlalchemy import select
 from typing import AsyncGenerator
+from langfuse import observe
 
 from cognee.shared.logging_utils import get_logger
 from cognee.modules.data.processing.document_types.Document import Document
@@ -26,6 +27,7 @@ async def update_document_token_count(document_id: UUID, token_count: int) -> No
             raise ValueError(f"Document with id {document_id} not found.")
 
 
+@observe(name="cognee_extract_chunks_from_documents")
 async def extract_chunks_from_documents(
     documents: list[Document],
     max_chunk_size: int,

@@ -1,5 +1,6 @@
 import asyncio
 from typing import List
+from langfuse import observe
 from cognee.infrastructure.engine import DataPoint
 from cognee.infrastructure.databases.graph import get_graph_engine
 from cognee.modules.graph.utils import deduplicate_nodes_and_edges, get_graph_from_model
@@ -10,6 +11,7 @@ from cognee.tasks.storage.exceptions import (
 )
 
 
+@observe(name="cognee_add_data_points")
 async def add_data_points(data_points: List[DataPoint]) -> List[DataPoint]:
     """
     Add a batch of data points to the graph database by extracting nodes and edges,

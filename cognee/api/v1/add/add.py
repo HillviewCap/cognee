@@ -1,5 +1,6 @@
 from uuid import UUID
 from typing import Union, BinaryIO, List, Optional, Any
+from langfuse import observe
 from cognee.modules.users.models import User
 from cognee.modules.pipelines import Task, run_pipeline
 from cognee.modules.pipelines.layers.resolve_authorized_user_dataset import (
@@ -15,6 +16,7 @@ from cognee.shared.logging_utils import get_logger
 logger = get_logger()
 
 
+@observe(name="cognee_add")
 async def add(
     data: Union[BinaryIO, list[BinaryIO], str, list[str]],
     dataset_name: str = "main_dataset",

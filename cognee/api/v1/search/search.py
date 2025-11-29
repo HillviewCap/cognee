@@ -1,5 +1,6 @@
 from uuid import UUID
 from typing import Union, Optional, List, Type
+from langfuse import observe
 
 from cognee.infrastructure.databases.graph import get_graph_engine
 from cognee.modules.engine.models.node_set import NodeSet
@@ -15,6 +16,7 @@ from cognee.shared.logging_utils import get_logger
 logger = get_logger()
 
 
+@observe(name="cognee_search")
 async def search(
     query_text: str,
     query_type: SearchType = SearchType.GRAPH_COMPLETION,

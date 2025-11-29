@@ -1,6 +1,7 @@
 import asyncio
 from typing import Type, List, Optional
 from pydantic import BaseModel
+from langfuse import observe
 
 from cognee.infrastructure.databases.graph import get_graph_engine
 from cognee.modules.ontology.ontology_env_config import get_ontology_env_config
@@ -27,6 +28,7 @@ from cognee.tasks.graph.exceptions import (
 )
 
 
+@observe(name="cognee_integrate_chunk_graphs")
 async def integrate_chunk_graphs(
     data_chunks: list[DocumentChunk],
     chunk_graphs: list,
@@ -94,6 +96,7 @@ async def integrate_chunk_graphs(
     return data_chunks
 
 
+@observe(name="cognee_extract_graph_from_data")
 async def extract_graph_from_data(
     data_chunks: List[DocumentChunk],
     graph_model: Type[BaseModel],
@@ -103,6 +106,20 @@ async def extract_graph_from_data(
     """
     Extracts and integrates a knowledge graph from the text content of document chunks using a specified graph model.
     """
+    import inspect
+
+    # Handle Langfuse-wrapped async generators or other async iterables
+    # The pipeline may pass a _ContextPreservedAsyncGeneratorWrapper instead of a list
+    if not isinstance(data_chunks, list):
+        if hasattr(data_chunks, '__anext__') or hasattr(data_chunks, '__aiter__'):
+            # Materialize async generator/iterable into a list
+            materialized_chunks = []
+            async for chunk in data_chunks:
+                materialized_chunks.append(chunk)
+            data_chunks = materialized_chunks
+        elif hasattr(data_chunks, '__iter__') and not isinstance(data_chunks, (str, bytes)):
+            # Handle regular iterables (but not strings)
+            data_chunks = list(data_chunks)
 
     if not isinstance(data_chunks, list) or not data_chunks:
         raise InvalidDataChunksError("must be a non-empty list of DocumentChunk.")

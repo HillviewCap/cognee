@@ -1,4 +1,5 @@
 from typing import Any, List, Optional, Tuple, Type, Union
+from langfuse import observe
 
 from cognee.infrastructure.databases.graph import get_graph_engine
 from cognee.modules.data.models.Dataset import Dataset
@@ -12,6 +13,7 @@ from .get_search_type_tools import get_search_type_tools
 logger = get_logger()
 
 
+@observe(name="cognee_no_access_control_search")
 async def no_access_control_search(
     query_type: SearchType,
     query_text: str,

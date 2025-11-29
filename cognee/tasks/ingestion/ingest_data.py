@@ -2,6 +2,7 @@ import json
 import inspect
 from uuid import UUID
 from typing import Union, BinaryIO, Any, List, Optional
+from langfuse import observe
 
 import cognee.modules.ingestion as ingestion
 from cognee.infrastructure.databases.relational import get_relational_engine
@@ -22,6 +23,7 @@ from .save_data_item_to_storage import save_data_item_to_storage
 from .data_item_to_text_file import data_item_to_text_file
 
 
+@observe(name="cognee_ingest_data")
 async def ingest_data(
     data: Any,
     dataset_name: str,
